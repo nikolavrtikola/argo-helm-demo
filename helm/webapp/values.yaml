@@ -2,7 +2,7 @@ replicaCount: 3
 
 image:
   repository: ghcr.io/nikolavrtikola/argo-demo
-  tag: "8b65c8cd04465e41204f787bc2751141160c3dd7"
+  tag: "51037973a2179fbafcf731821942cd93ae7da0a9"
   pullPolicy: Always
 
 service:
