@@ -41,12 +41,19 @@ jobs:
 
           git fetch origin
 
-          git checkout -B gitops origin/gitops
+          # Start from the latest main
+          git checkout main
+          git pull origin main
 
+          # Create/update gitops from main
+          git checkout -B gitops
+
+          # Update the Docker image tag
           sed -i "s/tag: \".*\"/tag: \"${{ github.sha }}\"/" helm/webapp/values.yaml
 
-          git add helm/webapp/values.yaml
+          # Commit the GitOps state
+          git add .
+          git commit -m "Update GitOps to ${{ github.sha }}" || exit 0
 
-          git commit -m "Update image to ${{ github.sha }}" || exit 0
-
-          git push origin gitops
+          # Push gitops
+          git push origin gitops --force
