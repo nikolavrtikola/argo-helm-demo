@@ -1,11 +1,12 @@
 replicaCount: 2
 
 image:
-  repository: argo-demo
-  tag: "2.0"
-  pullPolicy: Never
+  repository: ghcr.io/nikolavrtikola/argo-demo
+  tag: "latest"
+  pullPolicy: Always
 
 service:
   type: NodePort
   port: 80
   nodePort: 30080
+  

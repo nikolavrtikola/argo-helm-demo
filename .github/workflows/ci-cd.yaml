@@ -1,0 +1,46 @@
+name: Build and Update Helm
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./app
+          push: true
+          tags: |
+            ghcr.io/nikolavrtikola/argo-demo:${{ github.sha }}
+
+      - name: Update Helm image tag
+        run: |
+          sed -i "s/tag: \".*\"/tag: \"${{ github.sha }}\"/" helm/webapp/values.yaml
+
+      - name: Commit Helm change
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add helm/webapp/values.yaml
+          git commit -m "Update image to ${{ github.sha }}" || exit 0
+          git push
