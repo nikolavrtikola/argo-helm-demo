@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - 'helm/webapp/values.yaml'
 
 permissions:
   contents: write
@@ -18,6 +16,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -34,15 +34,19 @@ jobs:
           tags: |
             ghcr.io/nikolavrtikola/argo-demo:${{ github.sha }}
 
-      - name: Update Helm image tag
-        run: |
-          sed -i "s/tag: \".*\"/tag: \"${{ github.sha }}\"/" helm/webapp/values.yaml
-
-      - name: Commit Helm change
+      - name: Update GitOps branch
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
+          git fetch origin
+
+          git checkout -B gitops origin/gitops
+
+          sed -i "s/tag: \".*\"/tag: \"${{ github.sha }}\"/" helm/webapp/values.yaml
+
           git add helm/webapp/values.yaml
+
           git commit -m "Update image to ${{ github.sha }}" || exit 0
-          git push
+
+          git push origin gitops

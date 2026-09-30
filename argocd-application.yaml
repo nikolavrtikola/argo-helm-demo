@@ -12,7 +12,7 @@ spec:
 
   source:
     repoURL: https://github.com/nikolavrtikola/argo-helm-demo.git
-    targetRevision: main
+    targetRevision: gitops
     path: helm/webapp
 
     helm:
